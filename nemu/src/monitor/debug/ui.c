@@ -65,8 +65,7 @@ static int cmd_info(char *args) {
     }
     printf("eip\t0x%08x\t%d\n", cpu.eip, cpu.eip);
   } else if (strcmp(arg, "w") == 0) {
-    // TODO: implement info watchpoints
-    printf("TODO: implement info watchpoints\n");
+    info_wp();
   } else {
     printf("Unknown argument: %s\n", arg);
   }
@@ -134,16 +133,11 @@ static int cmd_w(char *args) {
     return 0;
   }
 
-  bool success;
-  uint32_t result = expr(args, &success);
+  WP *wp = new_wp(args);
 
-  if (!success) {
-    printf("Invalid expression\n");
+  if (wp == NULL) {
     return 0;
   }
-
-  // TODO: implement watchpoint
-  printf("TODO: set watchpoint at 0x%08x\n", result);
 
   return 0;
 }
@@ -155,13 +149,12 @@ static int cmd_d(char *args) {
   }
 
   int n = atoi(args);
-  if (n <= 0) {
-    printf("Invalid number: %s\n", args);
+  if (n < 0 || n >= NR_WP) {
+    printf("Invalid watchpoint number: %s\n", args);
     return 0;
   }
 
-  // TODO: implement delete watchpoint
-  printf("TODO: delete watchpoint %d\n", n);
+  free_wp(n);
 
   return 0;
 }
