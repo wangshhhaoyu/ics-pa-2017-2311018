@@ -25,7 +25,9 @@ make_EHelper(jmp_rm) {
 
 make_EHelper(call) {
   // the target address is calculated at the decode stage
-  rtl_li(&t0, cpu.eip + 5);  // return address is current eip + instruction length
+  uint32_t ret_addr = cpu.eip + 5;
+  printf("call: eip=0x%x, ret=0x%x, target=0x%x\n", cpu.eip, ret_addr, decoding.jmp_eip);
+  rtl_li(&t0, ret_addr);
   rtl_push(&t0);
   decoding.is_jmp = 1;
 
