@@ -179,7 +179,7 @@ make_EHelper(sbb) {
 
 make_EHelper(mul) {
   rtl_lr_l(&t0, R_EAX);
-  rtl_mul(&t2, &t3, &t0, &id_src->val);
+  rtl_mul(&t2, &t3, &t0, &id_dest->val);
   rtl_sr_l(R_EAX, &t3);
   rtl_sr_l(R_EDX, &t2);
 
@@ -188,7 +188,7 @@ make_EHelper(mul) {
 
 make_EHelper(imul1) {
   rtl_lr_l(&t0, R_EAX);
-  rtl_imul(&t2, &t3, &t0, &id_src->val);
+  rtl_imul(&t2, &t3, &t0, &id_dest->val);
   rtl_sr_l(R_EAX, &t3);
   rtl_sr_l(R_EDX, &t2);
 
@@ -213,7 +213,7 @@ make_EHelper(imul3) {
 make_EHelper(div) {
   rtl_lr_l(&t0, R_EAX);
   rtl_lr_l(&t1, R_EDX);
-  rtl_div(&t2, &t3, &t1, &t0, &id_src->val);
+  rtl_div(&t2, &t3, &t1, &t0, &id_dest->val);
   rtl_sr_l(R_EAX, &t2);
   rtl_sr_l(R_EDX, &t3);
 
@@ -223,7 +223,7 @@ make_EHelper(div) {
 make_EHelper(idiv) {
   rtl_lr_l(&t0, R_EAX);
   rtl_lr_l(&t1, R_EDX);
-  rtl_idiv(&t2, &t3, &t1, &t0, &id_src->val);
+  rtl_idiv(&t2, &t3, &t1, &t0, &id_dest->val);
   rtl_sr_l(R_EAX, &t2);
   rtl_sr_l(R_EDX, &t3);
 
