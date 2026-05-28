@@ -41,33 +41,34 @@ static make_EHelper(name) { \
 
 /* 0x80, 0x81, 0x83: add, or, adc, sbb, and, sub, xor, cmp */
 make_group(gp1,
-    IDEXW(I2E, add, 1), IDEXW(I2E, or, 1), IDEXW(I2E, adc, 1), IDEXW(I2E, sbb, 1),
-    IDEXW(I2E, and, 1), IDEXW(I2E, sub, 1), IDEXW(I2E, xor, 1), IDEXW(I2E, cmp, 1))
+    EXW(add, 1), EXW(or, 1), EXW(adc, 1), EXW(sbb, 1),
+    EXW(and, 1), EXW(sub, 1), EXW(xor, 1), EXW(cmp, 1))
 
   /* 0xc0, 0xc1, 0xd0, 0xd1, 0xd2, 0xd3: rol, ror, rcl, rcr, shl/shr/sal/sar */
 make_group(gp2,
     EMPTY, EMPTY, EMPTY, EMPTY,
-    IDEXW(I2E, shl, 1), IDEXW(I2E, shr, 1), EMPTY, IDEXW(I2E, sar, 1))
+    EXW(shl, 1), EXW(shr, 1), EMPTY, EXW(sar, 1))
 
   /* 0xf6, 0xf7: test, -, not, neg, mul, imul, div, idiv */
 make_group(gp3,
-    IDEXW(test_I, test, 1), EMPTY, IDEXW(E, not, 1), IDEXW(E, neg, 1),
-    IDEXW(E, mul, 1), IDEXW(E, imul1, 1), IDEXW(E, div, 1), IDEXW(E, idiv, 1))
+    EXW(test, 1), EMPTY, EXW(not, 1), EXW(neg, 1),
+    EXW(mul, 1), EXW(imul1, 1), EXW(div, 1), EXW(idiv, 1))
 
   /* 0xfe: inc, dec */
 make_group(gp4,
-    IDEXW(E, inc, 1), IDEXW(E, dec, 1), EMPTY, EMPTY,
+    EXW(inc, 1), EXW(dec, 1), EMPTY, EMPTY,
     EMPTY, EMPTY, EMPTY, EMPTY)
 
   /* 0xff: inc, dec, call, call far, jmp, jmp far, push */
 make_group(gp5,
-    IDEXW(E, inc, 1), IDEXW(E, dec, 1), IDEX(E, call_rm), EMPTY,
-    IDEX(E, jmp_rm), EMPTY, IDEXW(E, push, 1), EMPTY)
+    EXW(inc, 1), EXW(dec, 1), EX(call_rm), EMPTY,
+    EX(jmp_rm), EMPTY, EXW(push, 1), EMPTY)
 
   /* 0x0f 0x01*/
 make_group(gp7,
     EMPTY, EMPTY, EMPTY, EMPTY,
     EMPTY, EMPTY, EMPTY, EMPTY)
+
 
 /* TODO: Add more instructions!!! */
 
