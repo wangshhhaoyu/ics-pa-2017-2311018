@@ -15,3 +15,50 @@ make_EHelper(nemu_trap);
 
 make_EHelper(in);
 make_EHelper(out);
+
+// Data movement instructions
+make_EHelper(push);
+make_EHelper(pop);
+make_EHelper(pusha);
+make_EHelper(popa);
+make_EHelper(leave);
+make_EHelper(cltd);
+make_EHelper(cwtl);
+make_EHelper(movsx);
+make_EHelper(movzx);
+make_EHelper(lea);
+
+// Arithmetic instructions
+make_EHelper(add);
+make_EHelper(cmp);
+make_EHelper(inc);
+make_EHelper(inc_r);
+make_EHelper(dec);
+make_EHelper(dec_r);
+make_EHelper(neg);
+make_EHelper(adc);
+make_EHelper(sbb);
+make_EHelper(mul);
+make_EHelper(imul1);
+make_EHelper(imul2);
+make_EHelper(imul3);
+make_EHelper(div);
+make_EHelper(idiv);
+
+// Logic instructions
+make_EHelper(test);
+make_EHelper(and);
+make_EHelper(or);
+make_EHelper(not);
+make_EHelper(shl);
+make_EHelper(shr);
+make_EHelper(sar);
+make_EHelper(setcc);
+
+// Control transfer instructions
+make_EHelper(jmp);
+make_EHelper(jcc);
+make_EHelper(jmp_rm);
+make_EHelper(call_rm);
+
+// Group instructions (defined in exec.c via make_group, no declaration needed)

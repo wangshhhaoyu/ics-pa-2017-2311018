@@ -131,12 +131,21 @@ static inline void rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
 
 static inline void rtl_not(rtlreg_t* dest) {
   // dest <- ~dest
-  TODO();
+  *dest = ~*dest;
 }
 
 static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
-  TODO();
+  uint32_t sign_bit = (*src1 >> (width * 8 - 1)) & 1;
+  if (sign_bit) {
+    // sign extension: fill high bits with 1
+    uint32_t mask = 0xFFFFFFFF << (width * 8);
+    *dest = *src1 | mask;
+  } else {
+    // zero extension: fill high bits with 0
+    uint32_t mask = (1 << (width * 8)) - 1;
+    *dest = *src1 & mask;
+  }
 }
 
 static inline void rtl_push(const rtlreg_t* src1) {
