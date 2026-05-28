@@ -98,7 +98,7 @@ opcode_entry opcode_table [512] = {
   /* 0x5c */	EX(pop_r), EX(pop_r), EX(pop_r), EX(pop_r),
   /* 0x60 */	EX(pusha), EX(popa), EMPTY, EMPTY,
   /* 0x64 */	EMPTY, EMPTY, EX(operand_size), EMPTY,
-  /* 0x68 */	IDEX(I2a, push), EMPTY, EMPTY, EMPTY,
+  /* 0x68 */	IDEX(I2a, push), EMPTY, IDEXW(push_SI, push, 1), EMPTY,
   /* 0x6c */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x70 */	IDEXW(Jb, jcc, 1), IDEXW(Jb, jcc, 1), IDEXW(Jb, jcc, 1), IDEXW(Jb, jcc, 1),
   /* 0x74 */	IDEXW(Jb, jcc, 1), IDEXW(Jb, jcc, 1), IDEXW(Jb, jcc, 1), IDEXW(Jb, jcc, 1),
