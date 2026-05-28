@@ -142,10 +142,15 @@ static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
 static inline void rtl_push(const rtlreg_t* src1) {
   // esp <- esp - 4
   // M[esp] <- src1
+  printf("rtl_push: before, esp=0x%x, *src1=0x%x\n", cpu.esp, *src1);
   rtl_sr_l(R_ESP, &t2);
   rtl_subi(&t3, &t2, 4);
+  printf("rtl_push: t2=0x%x, t3=0x%x\n", t2, t3);
   rtl_sr_l(R_ESP, &t3);
+  printf("rtl_push: after esp write, esp=0x%x\n", cpu.esp);
+  printf("rtl_push: about to write mem at 0x%x\n", t3);
   rtl_sm(&t3, 4, src1);
+  printf("rtl_push: done\n");
 }
 
 static inline void rtl_pop(rtlreg_t* dest) {
