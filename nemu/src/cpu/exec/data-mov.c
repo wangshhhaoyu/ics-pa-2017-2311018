@@ -102,14 +102,14 @@ make_EHelper(cwtl) {
 }
 
 make_EHelper(movsx) {
-  id_dest->val = id_src->val;
-  operand_write(id_dest, &id_dest->val);
+  rtl_sext(&t0, &id_src->val, id_src->width);
+  operand_write(id_dest, &t0);
   print_asm_template2(movsx);
 }
 
 make_EHelper(movzx) {
-  id_dest->val = id_src->val;
-  operand_write(id_dest, &id_dest->val);
+  rtl_li(&t0, id_src->val);
+  operand_write(id_dest, &t0);
   print_asm_template2(movzx);
 }
 
