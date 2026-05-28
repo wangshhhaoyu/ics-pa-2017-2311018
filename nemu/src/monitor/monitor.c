@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #define ENTRY_START 0x100000
+#define PMEM_SIZE (128 * 1024 * 1024)
 
 void init_difftest();
 void init_regex();
@@ -82,6 +83,9 @@ static inline void load_img() {
 static inline void restart() {
   /* Set the initial instruction pointer. */
   cpu.eip = ENTRY_START;
+
+  /* Initialize stack pointer */
+  cpu.esp = PMEM_SIZE;
 
   /* Initialize EFLAGS register according to i386 manual */
   /* IOPL = 0, IF = 1, others = 0 */
