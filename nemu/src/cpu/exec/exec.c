@@ -51,8 +51,8 @@ make_group(gp2,
 
   /* 0xf6, 0xf7: test, -, not, neg, mul, imul, div, idiv */
 make_group(gp3,
-    EXW(test, 1), EMPTY, EXW(not, 1), EXW(neg, 1),
-    EXW(mul, 1), EXW(imul1, 1), EXW(div, 1), EXW(idiv, 1))
+    IDEX(test_I, test), EMPTY, EX(not), EX(neg),
+    EX(mul), EX(imul1), EX(div), EX(idiv))
 
   /* 0xfe: inc, dec */
 make_group(gp4,
@@ -135,7 +135,7 @@ opcode_entry opcode_table [512] = {
   /* 0xec */	IDEXW(in_dx2a, in, 1), IDEX(in_dx2a, in), IDEXW(out_a2dx, out, 1), IDEX(out_a2dx, out),
   /* 0xf0 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0xf4 */	EMPTY, EMPTY, IDEXW(E, gp3, 1), IDEX(E, gp3),
-  /* 0xf8 */	EMPTY, EMPTY, EMPTY, EMPTY,
+  /* 0xf8 */	EMPTY, EX(nop), EMPTY, EMPTY,
   /* 0xfc */	EX(nop), EX(nop), IDEXW(E, gp4, 1), IDEX(E, gp5),
 
   /*2 byte_opcode_table */
@@ -183,7 +183,7 @@ opcode_entry opcode_table [512] = {
   /* 0xa0 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0xa4 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0xa8 */	EMPTY, EMPTY, EMPTY, EMPTY,
-  /* 0xac */	EMPTY, EMPTY, EMPTY, EMPTY,
+  /* 0xac */	EMPTY, EMPTY, EMPTY, IDEX(E2G, imul2),
   /* 0xb0 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0xb4 */	EMPTY, EMPTY, IDEX(movzx_E2G, movzx), IDEX(movzx_Ew2G, movzx),
   /* 0xb8 */	EMPTY, EMPTY, EMPTY, EMPTY,
