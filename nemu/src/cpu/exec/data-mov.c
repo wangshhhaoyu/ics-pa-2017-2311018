@@ -11,10 +11,24 @@ make_EHelper(push) {
   print_asm_template1(push);
 }
 
+make_EHelper(push_r) {
+  int reg = decoding.opcode & 0x7;
+  rtl_lr(&t0, reg, 4);
+  rtl_push(&t0);
+  print_asm("push %s", reg_name(reg, 4));
+}
+
 make_EHelper(pop) {
   TODO();
 
   print_asm_template1(pop);
+}
+
+make_EHelper(pop_r) {
+  int reg = decoding.opcode & 0x7;
+  rtl_pop(&t0);
+  rtl_sr(reg, 4, &t0);
+  print_asm("pop %s", reg_name(reg, 4));
 }
 
 make_EHelper(pusha) {

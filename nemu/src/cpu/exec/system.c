@@ -45,7 +45,12 @@ uint32_t pio_read(ioaddr_t, int);
 void pio_write(ioaddr_t, int, uint32_t);
 
 make_EHelper(in) {
+#ifdef HAS_IOE
+  rtl_li(&t2, pio_read(id_src->val, id_dest->width));
+  operand_write(id_dest, &t2);
+#else
   TODO();
+#endif
 
   print_asm_template2(in);
 
@@ -55,7 +60,11 @@ make_EHelper(in) {
 }
 
 make_EHelper(out) {
+#ifdef HAS_IOE
+  pio_write(id_dest->val, id_src->width, id_src->val);
+#else
   TODO();
+#endif
 
   print_asm_template2(out);
 

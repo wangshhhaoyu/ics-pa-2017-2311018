@@ -83,6 +83,18 @@ static inline void restart() {
   /* Set the initial instruction pointer. */
   cpu.eip = ENTRY_START;
 
+  /* Initialize EFLAGS register according to i386 manual */
+  /* IOPL = 0, IF = 1, others = 0 */
+  cpu.eflags.CF = 0;
+  cpu.eflags.PF = 0;
+  cpu.eflags.AF = 0;
+  cpu.eflags.ZF = 0;
+  cpu.eflags.SF = 0;
+  cpu.eflags.TF = 0;
+  cpu.eflags.IF = 1;
+  cpu.eflags.DF = 0;
+  cpu.eflags.OF = 0;
+
 #ifdef DIFF_TEST
   init_qemu_reg();
 #endif
