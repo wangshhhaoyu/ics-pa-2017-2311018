@@ -35,9 +35,9 @@ void _draw_sync() {
 }
 
 int _read_key() {
-    // 先检查状态端口是否有数据（这会触发数据加载）
+
     if (inb(0x64) & 0x1) {
-        uint32_t key = inl(0x60);   // 读取完整的4字节键值
+        uint32_t key = inl(0x60);   
         if ((key & 0xff) == 0 || (key & 0xff) == 0xe0) return _KEY_NONE;
         return key;
     }
