@@ -41,3 +41,18 @@ void reg_test() {
 
   assert(eip_sample == cpu.eip);
 }
+
+void isa_reg_display(void)
+{
+  printf("General Purpose Registers:\n");
+  printf("eax: 0x%08x\t", cpu.eax);
+  printf("ecx: 0x%08x\t", cpu.ecx);
+  printf("edx: 0x%08x\t", cpu.edx);
+  printf("ebx: 0x%08x\n", cpu.ebx);
+  printf("esp: 0x%08x\t", cpu.esp);
+  printf("ebp: 0x%08x\t", cpu.ebp);
+  printf("esi: 0x%08x\t", cpu.esi);
+  printf("edi: 0x%08x\n", cpu.edi);
+
+  printf("eip: 0x%08x\n", cpu.eip);
+}

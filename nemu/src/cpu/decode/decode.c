@@ -32,13 +32,19 @@ static inline make_DopHelper(SI) {
 
   op->type = OP_TYPE_IMM;
 
-  /* Use instr_fetch() to read `op->width' bytes of memory
+  /* TODO: Use instr_fetch() to read `op->width' bytes of memory
    * pointed by `eip'. Interpret the result as a signed immediate,
    * and assign it to op->simm.
+   *
+   op->simm = ???
    */
-  if (op->width == 1) {
+  // TODO();
+  if (op->width == 1)
+  {
     op->simm = (int8_t)instr_fetch(eip, 1);
-  } else {
+  }
+  else
+  {
     op->simm = (int32_t)instr_fetch(eip, 4);
   }
 
@@ -128,30 +134,6 @@ make_DHelper(E2G) {
 
 make_DHelper(mov_E2G) {
   decode_op_rm(eip, id_src, true, id_dest, false);
-}
-
-make_DHelper(movzx_E2G) {
-  id_src->width = 1;
-  decode_op_rm(eip, id_src, true, id_dest, false);
-  id_dest->width = 4;
-}
-
-make_DHelper(movzx_Ew2G) {
-  id_src->width = 2;
-  decode_op_rm(eip, id_src, true, id_dest, false);
-  id_dest->width = 4;
-}
-
-make_DHelper(movsx_E2G) {
-  id_src->width = 1;
-  decode_op_rm(eip, id_src, true, id_dest, false);
-  id_dest->width = 4;
-}
-
-make_DHelper(movsx_Ew2G) {
-  id_src->width = 2;
-  decode_op_rm(eip, id_src, true, id_dest, false);
-  id_dest->width = 4;
 }
 
 make_DHelper(lea_M2G) {
@@ -289,12 +271,6 @@ make_DHelper(a2O) {
 make_DHelper(J) {
   decode_op_SI(eip, id_dest, false);
   // the target address can be computed in the decode stage
-  decoding.jmp_eip = id_dest->simm + *eip;
-}
-
-make_DHelper(Jb) {
-  id_dest->width = 1;
-  decode_op_SI(eip, id_dest, false);
   decoding.jmp_eip = id_dest->simm + *eip;
 }
 

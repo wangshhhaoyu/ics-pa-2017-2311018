@@ -1,42 +1,26 @@
 #include "cpu/exec.h"
 
 make_EHelper(mov);
-make_EHelper(sub);
-make_EHelper(xor);
-make_EHelper(push_r);
-make_EHelper(pop_r);
-make_EHelper(call);
-make_EHelper(ret);
 
 make_EHelper(operand_size);
 
 make_EHelper(inv);
 make_EHelper(nemu_trap);
-make_EHelper(nop);
 
-make_EHelper(in);
-make_EHelper(out);
-
-// Data movement instructions
+make_EHelper(sub);
+make_EHelper(call);
 make_EHelper(push);
 make_EHelper(pop);
-make_EHelper(pusha);
-make_EHelper(popa);
-make_EHelper(leave);
-make_EHelper(cltd);
-make_EHelper(cwtl);
-make_EHelper(movsx);
-make_EHelper(movzx);
-make_EHelper(lea);
+make_EHelper(xor);
+make_EHelper(ret);
 
-// Arithmetic instructions
 make_EHelper(add);
-make_EHelper(cmp);
 make_EHelper(inc);
-make_EHelper(inc_r);
 make_EHelper(dec);
-make_EHelper(dec_r);
+
+make_EHelper(cmp);
 make_EHelper(neg);
+
 make_EHelper(adc);
 make_EHelper(sbb);
 make_EHelper(mul);
@@ -46,27 +30,30 @@ make_EHelper(imul3);
 make_EHelper(div);
 make_EHelper(idiv);
 
-// Logic instructions
-make_EHelper(test);
+make_EHelper(not);
 make_EHelper(and);
 make_EHelper(or);
-make_EHelper(not);
+make_EHelper(xor);
+make_EHelper(test);
 make_EHelper(shl);
 make_EHelper(shr);
 make_EHelper(sar);
 make_EHelper(setcc);
 
-// String instructions
-make_EHelper(movs);
-make_EHelper(cmps);
-make_EHelper(stos);
-make_EHelper(lods);
-make_EHelper(scas);
-
-// Control transfer instructions
 make_EHelper(jmp);
 make_EHelper(jcc);
 make_EHelper(jmp_rm);
 make_EHelper(call_rm);
 
-// Group instructions (defined in exec.c via make_group, no declaration needed)
+make_EHelper(lea);
+make_EHelper(nop);
+
+make_EHelper(leave);
+make_EHelper(cltd);
+make_EHelper(cwtl);
+
+make_EHelper(movsx);
+make_EHelper(movzx);
+
+make_EHelper(in);
+make_EHelper(out);
