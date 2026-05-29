@@ -117,3 +117,85 @@ make_EHelper(lea) {
   operand_write(id_dest, &id_src->addr);
   print_asm_template2(lea);
 }
+make_EHelper(movs) {
+    int width = decoding.is_operand_size_16 ? 2 : 4;
+
+    rtl_lm(&t0, &cpu.esi, width);
+    rtl_sm(&cpu.edi, width, &t0);
+
+    if (cpu.eflags.DF) {
+      rtl_subi(&cpu.esi, &cpu.esi, width);
+      rtl_subi(&cpu.edi, &cpu.edi, width);
+    } else {
+      rtl_addi(&cpu.esi, &cpu.esi, width);
+      rtl_addi(&cpu.edi, &cpu.edi, width);
+    }
+
+    print_asm("movs");
+  }
+
+  make_EHelper(stos) {
+    int width = decoding.is_operand_size_16 ? 2 : 4;
+
+    rtl_lr_l(&t0, R_EAX);
+    rtl_sm(&cpu.edi, width, &t0);
+
+    if (cpu.eflags.DF) {
+      rtl_subi(&cpu.edi, &cpu.edi, width);
+    } else {
+      rtl_addi(&cpu.edi, &cpu.edi, width);
+    }
+
+    print_asm("stos");
+  }
+
+  make_EHelper(lods) {
+    int width = decoding.is_operand_size_16 ? 2 : 4;
+
+    rtl_lm(&t0, &cpu.esi, width);
+    rtl_sr_l(R_EAX, &t0);
+
+    if (cpu.eflags.DF) {
+      rtl_subi(&cpu.esi, &cpu.esi, width);
+    } else {
+      rtl_addi(&cpu.esi, &cpu.esi, width);
+    }
+
+    print_asm("lods");
+  }
+
+  make_EHelper(cmps) {
+    int width = decoding.is_operand_size_16 ? 2 : 4;
+
+    rtl_lm(&t0, &cpu.esi, width);
+    rtl_lm(&t1, &cpu.edi, width);
+    rtl_sub(&t2, &t0, &t1);
+    rtl_update_ZFSF(&t2, width);
+
+    if (cpu.eflags.DF) {
+      rtl_subi(&cpu.esi, &cpu.esi, width);
+      rtl_subi(&cpu.edi, &cpu.edi, width);
+    } else {
+      rtl_addi(&cpu.esi, &cpu.esi, width);
+      rtl_addi(&cpu.edi, &cpu.edi, width);
+    }
+
+    print_asm("cmps");
+  }
+
+  make_EHelper(scas) {
+    int width = decoding.is_operand_size_16 ? 2 : 4;
+
+    rtl_lr_l(&t0, R_EAX);
+    rtl_lm(&t1, &cpu.edi, width);
+    rtl_sub(&t2, &t0, &t1);
+    rtl_update_ZFSF(&t2, width);
+
+    if (cpu.eflags.DF) {
+      rtl_subi(&cpu.edi, &cpu.edi, width);
+    } else {
+      rtl_addi(&cpu.edi, &cpu.edi, width);
+    }
+
+    print_asm("scas");
+  }
