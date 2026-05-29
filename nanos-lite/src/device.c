@@ -1,3 +1,5 @@
+#include "am.h"
+void _screen_size(int *w, int *h) { *w=640; *h=480; }
 #include "common.h"
 
 #define NAME(key) \
