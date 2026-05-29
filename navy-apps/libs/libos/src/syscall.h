@@ -1,6 +1,7 @@
 #ifndef __SYSCALL_H__
 #define __SYSCALL_H__
 
+
 enum {
   SYS_none,
   SYS_open,
@@ -23,5 +24,7 @@ enum {
   SYS_times,
   SYS_gettimeofday
 };
+
+_RegSet* do_syscall(_RegSet *r);
 
 #endif

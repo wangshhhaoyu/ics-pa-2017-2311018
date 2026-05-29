@@ -1,4 +1,5 @@
 #include "common.h"
+#include "syscall.h"
 
 static _RegSet* do_event(_Event e, _RegSet* r) {
   switch (e.event) {
