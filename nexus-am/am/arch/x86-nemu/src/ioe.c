@@ -9,7 +9,7 @@ void _ioe_init() {
 }
 
 unsigned long _uptime() {
-  return 0;
+  return inl(RTC_PORT) - boot_time;
 }
 
 uint32_t* const fb = (uint32_t *)0x40000;
@@ -22,9 +22,11 @@ _Screen _screen = {
 extern void* memcpy(void *, const void *, int);
 
 void _draw_rect(const uint32_t *pixels, int x, int y, int w, int h) {
-  int i;
-  for (i = 0; i < _screen.width * _screen.height; i++) {
-    fb[i] = i;
+  int i, j;
+  for (i = 0; i < h; i++) {
+    for (j = 0; j < w; j++) {
+      fb[(y + i) * _screen.width + (x + j)] = pixels[i * w + j];
+    }
   }
 }
 
@@ -32,5 +34,7 @@ void _draw_sync() {
 }
 
 int _read_key() {
-  return _KEY_NONE;
+  int key = inb(0x60);
+  if (key == 0 || key == 0xe0) return _KEY_NONE;
+  return key + 0x8000;
 }

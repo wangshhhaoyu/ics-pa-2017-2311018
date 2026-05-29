@@ -1,5 +1,6 @@
 #include "cpu/exec.h"
 #include "all-instr.h"
+#include "device/port-io.h"
 
 typedef struct {
   DHelper decode;
@@ -222,6 +223,8 @@ make_EHelper(real) {
 static inline void update_eip(void) {
   cpu.eip = (decoding.is_jmp ? (decoding.is_jmp = 0, decoding.jmp_eip) : decoding.seq_eip);
 }
+
+
 
 void exec_wrapper(bool print_flag) {
 #ifdef DEBUG
