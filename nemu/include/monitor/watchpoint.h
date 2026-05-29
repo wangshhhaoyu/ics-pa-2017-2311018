@@ -8,17 +8,15 @@ typedef struct watchpoint {
   struct watchpoint *next;
 
   /* TODO: Add more members if necessary */
-  char expr[256];
-  uint32_t old_val;
-  bool enabled;
+  int old; //旧的值
+  char e[32]; //表达式
+  int hitNum; //记录触发次数
 
 } WP;
 
-void init_wp_pool();
-WP *new_wp();
-void free_wp(WP *wp);
-void print_watchpoints();
-bool check_watchpoints();
-void delete_watchpoint(int no);
+bool new_wp(char *arg);
+bool free_wp(int num);
+void print_wp();
+bool watch_wp();
 
 #endif

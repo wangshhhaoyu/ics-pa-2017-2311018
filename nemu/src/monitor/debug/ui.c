@@ -1,5 +1,5 @@
-#include "monitor/monitor.h"
 #include "monitor/expr.h"
+#include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
 
@@ -36,211 +36,123 @@ static int cmd_q(char *args) {
   return -1;
 }
 
-static int cmd_expr(char *args)
-{
-  if (args == NULL)
-  {
-    printf("Usage: p <expression>\n");
-    printf("Example: p 1+2 * 3  or  p $eax+4\n");
-    return 0;
-  }
+static int cmd_help(char *args);
 
-  bool success;
-  uint32_t result = expr(args, &success);
-  if (success)
-  {
-    printf("Result: 0x%08x (%d)\n", result, (int32_t)result);
+static int cmd_si(char *args) {
+  uint64_t N = 0;
+  if(args == NULL) {
+    N = 1;
   }
-  else
-  {
-    printf("Expression evaluation failed.\n");
-  }
-  return 0;
-}
-
-static int cmd_si(char *args)
-{
-  int step = 1;
-  if (args != NULL)
-  {
-    bool success = false;
-    uint32_t step_val = expr(args, &success);
-
-    if (success)
-    {
-      step = (int)step_val;
-      if (step <= 0)
-      {
-        printf("Step count must be positive (got %d)\n", step);
-        return 0;
-      }
-    }
-    else
-    {
-      printf("Failed to evaluate step expression: %s\n", args);
+  else {
+    int temp = sscanf(args, "%lu", &N);
+    if(temp <= 0) {
+      printf("args error in cmd_si\n");
       return 0;
     }
   }
-
-  cpu_exec(step);
+  cpu_exec(N);
   return 0;
 }
 
-void isa_reg_display(void);
-
-static int cmd_w(char *args)
-{
-  if (args == NULL)
-  {
-    printf("Usage: w <expression>\n");
-    printf("Set a watchpoint for an expression.\n");
+static int cmd_info(char *args) {
+  char s;
+  if(args == NULL) {
+    printf("args error in cmd_info (miss args)\n");
     return 0;
   }
-
-  bool success;
-  uint32_t val = expr(args, &success);
-  if (!success)
-  {
-    printf("Invalid expression: %s\n", args);
+  int temp = sscanf(args, "%c", &s);
+  if(temp <= 0) {
+    //解析失败
+    printf("args error in cmd_info\n");
     return 0;
   }
-
-  WP *wp = new_wp();
-  if (wp == NULL)
-  {
-    printf("Failed to create watchpoint: no free watchpoint available.\n");
+  if(s == 'w') {
+    //打印监视点信息
+    print_wp();;
     return 0;
   }
-
-  strncpy(wp->expr, args, sizeof(wp->expr) - 1);
-  wp->expr[sizeof(wp->expr) - 1] = '\0';
-  wp->old_val = val;
-
-  printf("Watchpoint %d: %s\n", wp->NO, wp->expr);
-  return 0;
-}
-
-static int cmd_d(char *args)
-{
-  if (args == NULL)
-  {
-    printf("Usage: d <watchpoint_number>\n");
-    printf("Delete a watchpoint.\n");
-    return 0;
-  }
-
-  int no = atoi(args);
-  delete_watchpoint(no);
-  return 0;
-}
-
-static int cmd_info(char *args)
-{
-  if (args == NULL)
-  {
-    printf("Usage: info <subcommand>\n");
-    printf("Subcommands:\n");
-    printf("  r - print register values\n");
-    printf("  w - print watchpoints (to be implemented)\n");
-    return 0;
-  }
-  char *subcmd = strtok(args, " ");
-  if (subcmd == NULL)
-  {
-    printf("Please specify a subcommand: r or w\n");
-    return 0;
-  }
-  if (strcmp(subcmd, "r") == 0)
-  {
-    isa_reg_display();
-  }
-  else if (strcmp(subcmd, "w") == 0)
-  {
-    print_watchpoints();
-  }
-  else
-  {
-    printf("Unknown subcommand '%s'\n", subcmd);
-  }
-  return 0;
-}
-
-static int cmd_x(char *args)
-{
-  if (args == NULL)
-  {
-    printf("Usage: x <count_expression> <address_expression>\n");
-    printf("Both parameters support full expression evaluation.\n");
-    printf("Examples:\n");
-    printf("  x 10 0x100000          # 查看固定地址\n");
-    printf("  x 2 * 4 $eip             # 查看8字节，从eip开始\n");
-    printf("  x $eax $esp+($ebx*2)  # 数量由eax决定，地址动态计算\n");
-    return 0;
-  }
-
-  char *count_expr_end = args;
-  while (*count_expr_end != '\0' && *count_expr_end != ' ')
-  {
-    count_expr_end++;
-  }
-
-  if (*count_expr_end == '\0')
-  {
-    printf("Missing address expression. Usage: x <count> <address>\n");
-    return 0;
-  }
-
-  *count_expr_end = '\0';
-  char *count_expr = args;
-  char *addr_expr = count_expr_end + 1;
-
-  bool success = false;
-  uint32_t count = expr(count_expr, &success);
-  if (!success)
-  {
-    printf("Failed to evaluate count expression: %s\n", count_expr);
-    *count_expr_end = ' ';
-    return 0;
-  }
-
-  if (count <= 0 || count > 1024)
-  {
-    printf("Count must be between 1 and 1024 (got %u)\n", count);
-    *count_expr_end = ' ';
-    return 0;
-  }
-
-  uint32_t addr = expr(addr_expr, &success);
-  if (!success)
-  {
-    printf("Failed to evaluate address expression: %s\n", addr_expr);
-    *count_expr_end = ' ';
-    return 0;
-  }
-
-  printf("Scanning %u bytes from 0x%08x\n", count, addr);
-  printf("  Count expression: %s\n", count_expr);
-  printf("  Addr expression:  %s\n", addr_expr);
-  printf("\n");
-  printf("Address       +0    +1    +2    +3    +4    +5    +6    +7\n");
-  printf("==========   ====  ====  ====  ====  ====  ====  ====  ====\n");
-
-  *count_expr_end = ' ';
-
-  for (uint32_t i = 0; i < count; i += 8)
-  {
-    printf("0x%08x  ", addr + i);
-    for (int j = 0; j < 8 && (i + j) < count; j++)
-    {
-      uint8_t byte = paddr_read(addr + i + j, 1);
-      printf("0x%02x  ", byte);
+  if(s == 'r') {
+    //打印寄存器
+    //32bit
+    for(int i = 0; i < 8; i++) {
+      printf("%s  0x%x\n", regsl[i], reg_l(i));
     }
-    printf("\n");
+    printf("eip  0x%x\n", cpu.eip);
+    //16bit
+    for(int i = 0; i < 8; i++) {
+      printf("%s  0x%x\n", regsw[i], reg_w(i));
+    }
+    //8bit
+    for(int i = 0; i < 8; i++)
+    {
+      printf("%s  0x%x\n", regsb[i], reg_b(i));
+    }
+    return 0;
+  }
+  //如果产生错误
+  printf("args error in cmd_info\n");
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  int nLen = 0;
+  vaddr_t addr;
+  int temp = sscanf(args, "%d 0x%x", &nLen, &addr);
+  if(temp <= 0) {
+    //解析失败
+    printf("args error in cmd_si\n");
+    return 0;
+  }
+  printf("Memory:");
+  for(int i = 0; i < nLen; i++) {
+    if(i % 4 == 0) {
+      printf("\n0x%x:  0x%02x", addr + i, vaddr_read(addr + i, 1));
+    }  
+    else {
+      printf("  0x%02x", vaddr_read(addr + i, 1));
+    }
+  }
+  printf("\n");
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  //表达式求值
+  bool is_success;
+  int temp = expr(args, &is_success);
+  if(is_success == false) {
+    printf("error in expr()\n");
+  }
+  else {
+    printf("the value of expr is:%d\n", temp);
   }
   return 0;
 }
 
-static int cmd_help(char *args);
+static int cmd_w(char *args) {
+  new_wp(args);
+  return 0;
+}
+
+static int cmd_d(char* args) {
+  //删除监视点,args为监视点编号
+  int num = 0;
+  int nRet = sscanf(args, "%d", &num);
+  if(nRet <= 0) {
+    //解析失败
+    printf("args error in cmd_si\n");
+    return 0;
+  }
+  int r = free_wp(num);
+  if(r == false) {
+    printf("error: no watchpoint %d\n", num);
+  }
+  else {
+    printf("Success delete watchpoint %d\n", num);
+  }
+  return 0;
+}
+
 
 static struct {
   char *name;
@@ -252,12 +164,13 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
-  { "si", "Setp N(default 1)", cmd_si },
-  { "info", "Print program status", cmd_info },
-  { "x", "Scan memory", cmd_x },
-  { "p", "Evaluate the expression", cmd_expr },
-  { "w", "Set a watchpoint", cmd_w },
-  { "d", "Delete a watchpoint", cmd_d },
+
+  { "si", "args:[N]; exectue [N] instructions step by step", cmd_si}, //让程序单步执行 N 条指令后暂停执行, 当N没有给出时, 缺省为1
+  { "info", "args:r/w;print information about register or watch point ", cmd_info}, //打印寄存器状态
+  { "x", "x [N] [EXPR];sacn the memory", cmd_x }, //内存扫描
+  { "p", "expr", cmd_p}, //表达式
+  { "w", "set the watchpoint", cmd_w}, //添加监视点
+  { "d", "delete the watchpoint", cmd_d} //删除监视点
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))

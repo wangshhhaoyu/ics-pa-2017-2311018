@@ -38,14 +38,10 @@ static inline make_DopHelper(SI) {
    *
    op->simm = ???
    */
-  // TODO();
-  if (op->width == 1)
-  {
-    op->simm = (int8_t)instr_fetch(eip, 1);
-  }
-  else
-  {
-    op->simm = (int32_t)instr_fetch(eip, 4);
+  //TODO();
+  op -> simm = instr_fetch(eip, op -> width);
+  if(op -> width == 1) {
+    op -> simm = (int8_t)op -> simm;
   }
 
   rtl_li(&op->val, op->simm);
@@ -312,8 +308,8 @@ make_DHelper(out_a2dx) {
 #endif
 }
 
-make_DHelper(lidt_a){
-  decode_op_a(eip,id_dest,true);
+make_DHelper(lidt_a) {
+  decode_op_a(eip, id_dest, true);
 }
 
 void operand_write(Operand *op, rtlreg_t* src) {

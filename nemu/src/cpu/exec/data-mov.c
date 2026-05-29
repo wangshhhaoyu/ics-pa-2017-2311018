@@ -6,9 +6,9 @@ make_EHelper(mov) {
 }
 
 make_EHelper(push) {
-  // TODO();
-  rtl_push(&id_dest->val);
-  print_asm_template1(push);
+  //TODO();
+  rtl_push(&id_dest -> val);
+  print_asm_template1(push); 
 }
 
 make_EHelper(pop) {
@@ -16,6 +16,20 @@ make_EHelper(pop) {
   rtl_pop(&t2);
   operand_write(id_dest, &t2);
   print_asm_template1(pop);
+}
+
+make_EHelper(movsb) {
+  rtl_get_ZF(&t0);
+  uint8_t data=vaddr_read(cpu.ds + cpu.esi,1);
+  vaddr_write(cpu.es + cpu.edi, 1, data);
+  if(!t0) {
+    cpu.esi+=1;
+    cpu.edi+=1;
+  } else {
+    cpu.esi-=1;
+    cpu.edi-=1;
+  }
+  print_asm_template2(movsb);
 }
 
 make_EHelper(pusha) {
@@ -29,7 +43,6 @@ make_EHelper(pusha) {
   rtl_push(&cpu.ebp);
   rtl_push(&cpu.esi);
   rtl_push(&cpu.edi);
-  print_asm("pusha");
 
   print_asm("pusha");
 }
@@ -45,27 +58,27 @@ make_EHelper(popa) {
   rtl_pop(&cpu.ecx);
   rtl_pop(&cpu.eax);
   print_asm("popa");
-
-  print_asm("popa");
 }
 
 make_EHelper(leave) {
   // TODO();
+
   rtl_mv(&cpu.esp, &cpu.ebp);
   rtl_pop(&cpu.ebp);
-
   print_asm("leave");
 }
 
 make_EHelper(cltd) {
   if (decoding.is_operand_size_16) {
     // TODO();
-    rtl_sext(&cpu.edx, &cpu.eax, 2);
+    rtl_lr_w(&t0, R_AX);
+    rtl_sext(&t0, &t0, 2);
+    rtl_sari(&t0, &t0, 31);
+    rtl_sr_w(R_DX, &t0);
   }
   else {
     // TODO();
-    rtl_msb(&t0, &cpu.eax, 4);
-    rtl_sub(&cpu.edx, &tzero, &t0);
+    rtl_sari(&cpu.edx, &cpu.eax, 31);
   }
 
   print_asm(decoding.is_operand_size_16 ? "cwtl" : "cltd");
@@ -73,12 +86,15 @@ make_EHelper(cltd) {
 
 make_EHelper(cwtl) {
   if (decoding.is_operand_size_16) {
-    TODO();
-  }
-  else {
-    TODO();
-  }
-
+      rtl_lr_b(&t0, R_AX);
+      rtl_sext(&t0, &t0, 1);
+      rtl_sr_w(R_AX, &t0);
+    } 
+    else {
+      rtl_lr_w(&t0, R_AX);
+      rtl_sext(&t0, &t0, 2);
+      rtl_sr_l(R_EAX, &t0);
+    }
   print_asm(decoding.is_operand_size_16 ? "cbtw" : "cwtl");
 }
 
