@@ -36,6 +36,12 @@ void _draw_sync() {
 
 int _read_key() {
     uint32_t key = inl(0x60);         // 改为读取 4 字节
+     const char hex[] = "0123456789ABCDEF";
+    _putc(hex[(key >> 4) & 0xF]);
+    _putc(hex[key & 0xF]);
+    _putc(' ');
+    if (key & 0x8000) _putc('D'); else _putc('U');
+    _putc('\n');
     if ((key & 0xff) == 0 || (key & 0xff) == 0xe0) return _KEY_NONE; // 可选：过滤无效键值
     return key;                       // 直接返回 NEMU 队列中的值（已包含按下/释放标志）
 }
