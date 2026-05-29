@@ -35,7 +35,7 @@ make_EHelper(call) {
 }
 
 make_EHelper(ret) {
-  rtl_pop(&t0);
+  rtl_li(&t0, cpu.eip + 5);
   decoding.jmp_eip = t0;
   decoding.is_jmp = 1;
 
