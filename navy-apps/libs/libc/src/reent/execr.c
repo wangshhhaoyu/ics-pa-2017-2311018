@@ -1,3 +1,4 @@
+#include <errno.h>
 /* Reentrant versions of execution system calls.  These
    implementations just call the usual system calls.  */
 
@@ -24,7 +25,7 @@ int _dummy_exec_syscalls = 1;
 
 /* We use the errno variable used by the system dependent layer.  */
 #undef errno
-int errno;
+extern int errno;
 
 /*
 FUNCTION

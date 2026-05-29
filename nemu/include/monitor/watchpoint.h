@@ -3,23 +3,22 @@
 
 #include "common.h"
 
-#define NR_WP 32
-
 typedef struct watchpoint {
   int NO;
   struct watchpoint *next;
 
   /* TODO: Add more members if necessary */
-  char expr[128];
+  char expr[256];
   uint32_t old_val;
-  bool hit;
+  bool enabled;
 
 } WP;
 
 void init_wp_pool();
-WP *new_wp(char *e);
-void free_wp(int no);
-void info_wp();
-bool check_wp();
+WP *new_wp();
+void free_wp(WP *wp);
+void print_watchpoints();
+bool check_watchpoints();
+void delete_watchpoint(int no);
 
 #endif

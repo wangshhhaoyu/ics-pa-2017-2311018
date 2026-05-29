@@ -1,3 +1,4 @@
+#include <errno.h>
 /* Reentrant versions of sbrk system call.  This implementation just
    calls the stat system call.  */
 
@@ -24,7 +25,7 @@ int _dummy_sbrk_syscalls = 1;
 
 /* We use the errno variable used by the system dependent layer.  */
 #undef errno
-int errno;
+extern int errno;
 
 /*
 FUNCTION

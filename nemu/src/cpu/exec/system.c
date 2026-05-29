@@ -3,8 +3,17 @@
 void diff_test_skip_qemu();
 void diff_test_skip_nemu();
 
+extern void raise_intr(uint8_t NO,vaddr_t ret_addr);
+
 make_EHelper(lidt) {
-  TODO();
+  // TODO();
+  t1=id_dest->val;
+  rtl_lm(&t0,&t1,2);
+  cpu.idtr.limit=t0;
+
+  t1=id_dest->val+2;
+  rtl_lm(&t0,&t1,4);
+  cpu.idtr.base=t0;
 
   print_asm_template1(lidt);
 }
@@ -26,7 +35,9 @@ make_EHelper(mov_cr2r) {
 }
 
 make_EHelper(int) {
-  TODO();
+  // TODO();
+  uint8_t NO=id_dest->val&0xff;
+  raise_intr(NO,decoding.seq_eip);
 
   print_asm("int %s", id_dest->str);
 
@@ -36,7 +47,14 @@ make_EHelper(int) {
 }
 
 make_EHelper(iret) {
-  TODO();
+  // TODO();
+  rtl_pop(&cpu.eip);
+  rtl_pop(&cpu.cs);
+  rtl_pop(&t0);
+  memcpy(&cpu.eflags,&t0,sizeof(cpu.eflags));
+
+  decoding.jmp_eip=1;
+  decoding.seq_eip=cpu.eip;
 
   print_asm("iret");
 }
@@ -45,12 +63,9 @@ uint32_t pio_read(ioaddr_t, int);
 void pio_write(ioaddr_t, int, uint32_t);
 
 make_EHelper(in) {
-#ifdef HAS_IOE
-  rtl_li(&t2, pio_read(id_src->val, id_dest->width));
-  operand_write(id_dest, &t2);
-#else
-  TODO();
-#endif
+  // TODO();
+  rtl_li(&t0, pio_read(id_src->val, id_dest->width));
+  operand_write(id_dest, &t0);
 
   print_asm_template2(in);
 
@@ -60,11 +75,9 @@ make_EHelper(in) {
 }
 
 make_EHelper(out) {
-#ifdef HAS_IOE
+  // TODO();
+  rtl_sr(R_EAX, id_dest->width, &tzero);
   pio_write(id_dest->val, id_src->width, id_src->val);
-#else
-  TODO();
-#endif
 
   print_asm_template2(out);
 
