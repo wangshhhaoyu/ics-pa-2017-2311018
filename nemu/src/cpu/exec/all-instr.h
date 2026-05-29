@@ -56,13 +56,6 @@ make_EHelper(shr);
 make_EHelper(sar);
 make_EHelper(setcc);
 
-// String instructions
-make_EHelper(movs);
-make_EHelper(cmps);
-make_EHelper(stos);
-make_EHelper(lods);
-make_EHelper(scas);
-
 // Control transfer instructions
 make_EHelper(jmp);
 make_EHelper(jcc);
