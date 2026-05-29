@@ -18,6 +18,26 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_EVENTS] = {"/dev/events", 0, 0},
   [FD_DISPINFO] = {"/proc/dispinfo", 128, 0},
 #include "files.h"
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 },
+  {NULL, 0, 0, 0 }
 };
 
 #define NR_FILES (sizeof(file_table) / sizeof(file_table[0]))

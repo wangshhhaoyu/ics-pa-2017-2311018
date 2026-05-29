@@ -1,4 +1,3 @@
-#include <errno.h>
 /* Reentrant versions of stat system call.  This implementation just
    calls the stat system call.  */
 
@@ -24,7 +23,7 @@ int _dummy_stat_syscalls = 1;
 
 /* We use the errno variable used by the system dependent layer.  */
 #undef errno
-extern int errno;
+int errno;
 
 /*
 FUNCTION

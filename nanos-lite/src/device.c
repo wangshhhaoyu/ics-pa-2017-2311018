@@ -93,3 +93,8 @@ void init_device() {
   getScreen(&width, &height);
   sprintf(dispinfo, "WIDTH:%d\nHEIGHT:%d\n", width,height);
 }
+// Dummy implementation for getScreen (required by fb_write and init_device)
+void getScreen(int *width, int *height) {
+    *width = 640;
+    *height = 480;
+}

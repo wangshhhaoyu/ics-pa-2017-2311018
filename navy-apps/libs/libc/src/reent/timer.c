@@ -1,4 +1,3 @@
-#include <errno.h>
 /* Reentrant versions of times and gettimeofday system calls for the
    clock and time ANSI C routines.
    This implementation just calls the times/gettimeofday system calls.
@@ -27,7 +26,7 @@ int _dummy_time_syscalls = 1;
 
 /* We use the errno variable used by the system dependent layer.  */
 #undef errno
-extern int errno;
+int errno;
 
 /*
 FUNCTION
