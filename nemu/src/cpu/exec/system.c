@@ -21,13 +21,36 @@ make_EHelper(lidt) {
 }
 
 make_EHelper(mov_r2cr) {
-  TODO();
+  int cr = id_dest->reg;          
+  uint32_t val = id_src->val;
+
+  switch (cr) {
+      case 0: cpu.cr0 = val; break;
+      case 2: cpu.cr2 = val; break;
+      case 3: cpu.cr3 = val; break;
+      case 4: cpu.cr4 = val; break;
+      default: assert(0);
+    }
 
   print_asm("movl %%%s,%%cr%d", reg_name(id_src->reg, 4), id_dest->reg);
 }
 
 make_EHelper(mov_cr2r) {
-  TODO();
+    int cr = id_src->reg;
+    uint32_t val;
+
+    switch (cr) {
+        case 0: val = cpu.cr0; break;
+        case 2: val = cpu.cr2; break;
+        case 3: val = cpu.cr3; break;
+        case 4: val = cpu.cr4; break;
+        default: assert(0);
+    }
+
+    rtl_li(&t0, val);
+    operand_write(id_dest, &t0);
+
+    
 
   print_asm("movl %%cr%d,%%%s", id_src->reg, reg_name(id_dest->reg, 4));
 
@@ -37,7 +60,10 @@ make_EHelper(mov_cr2r) {
 }
 
 make_EHelper(int) {
-  // TODO();
+  rtl_pop(&cpu.eip);
+  rtl_pop(&cpu.cs);
+  rtl_pop(&t0);
+  memcpy(&cpu.eflags, &t0, sizeof(cpu.eflags));
 
   uint8_t NO = id_dest -> val & 0xff;
   raise_intr(NO, decoding.seq_eip);
