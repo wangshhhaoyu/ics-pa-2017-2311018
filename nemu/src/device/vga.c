@@ -20,6 +20,15 @@ void vga_vmem_io_handler(paddr_t addr, int len, bool is_write) {
 }
 
 void update_screen() {
+  static int first = 1;
+  if (first) {
+    printf("vmem = %p, SCREEN_W=%d, SCREEN_H=%d\n", vmem, SCREEN_W, SCREEN_H);
+    // 将整个显存填充为红色
+    for (int i = 0; i < SCREEN_W * SCREEN_H; i++) {
+      ((uint32_t*)vmem)[i] = 0x00FF0000;  // 红色
+    }
+    first = 0;
+  }
   SDL_UpdateTexture(texture, NULL, vmem, SCREEN_W * sizeof(vmem[0][0]));
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -28,7 +37,7 @@ void update_screen() {
 
 void init_vga() {
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_CreateWindowAndRenderer(SCREEN_W , SCREEN_H , 0, &window, &renderer);
+  SDL_CreateWindowAndRenderer(SCREEN_W * 2, SCREEN_H * 2, 0, &window, &renderer);
   SDL_SetWindowTitle(window, "NEMU");
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
       SDL_TEXTUREACCESS_STATIC, SCREEN_W, SCREEN_H);
