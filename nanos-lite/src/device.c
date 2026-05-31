@@ -1,102 +1,101 @@
-#include "am.h"
-void _screen_size(int *w, int *h) { *w=640; *h=480; }
 #include "common.h"
 
 #define NAME(key) \
   [_KEY_##key] = #key,
-
-
-extern void getScreen(int* p_width, int* p_height);
 
 static const char *keyname[256] __attribute__((used)) = {
   [_KEY_NONE] = "NONE",
   _KEYS(NAME)
 };
 
+static size_t emit_event(void *buf, size_t len, const char *prefix, const char *body) {
+  char *out = (char *)buf;
+  size_t n = 0;
+
+  while (*prefix && n < len) {
+    out[n++] = *prefix++;
+  }
+  while (*body && n < len) {
+    out[n++] = *body++;
+  }
+  if (n < len) {
+    out[n++] = '\n';
+  }
+  return n;
+}
+
+static size_t emit_timer_event(void *buf, size_t len, unsigned int now) {
+  char tmp[16];
+  int digits = 0;
+
+  do {
+    tmp[digits++] = '0' + now % 10;
+    now /= 10;
+  } while (now != 0);
+
+  char *out = (char *)buf;
+  size_t n = 0;
+  if (n < len) out[n++] = 't';
+  if (n < len) out[n++] = ' ';
+  while (digits > 0 && n < len) {
+    out[n++] = tmp[--digits];
+  }
+  if (n < len) {
+    out[n++] = '\n';
+  }
+  return n;
+}
+
 size_t events_read(void *buf, size_t len) {
-  char buffer[40];
   int key = _read_key();
-  int down = 0;
-  if(key & 0x8000) {
-      key ^= 0x8000;
-      down = 1;
+  if (key != _KEY_NONE) {
+    bool keydown = (key & 0x8000) != 0;
+    int code = key & ~0x8000;
+    const char *name = "UNKNOWN";
+    if (code >= 0 && code < (int)(sizeof(keyname) / sizeof(keyname[0])) && keyname[code] != NULL) {
+      name = keyname[code];
+    }
+    return emit_event(buf, len, keydown ? "kd " : "ku ", name);
   }
-  if(key != _KEY_NONE) {
-     sprintf(buffer, "%s %s\n", down ? "kd": "ku", keyname[key]);
-  }
-  else {
-      sprintf(buffer,"t %d\n", _uptime());
-  }
-  if(strlen(buffer) <= len) { 
-    strncpy((char*)buf, buffer,strlen(buffer));
-	  return strlen(buffer);
-  } 
-  Log("strlen(event)>len, return 0");
-  return 0;
+
+  return emit_timer_event(buf, len, (unsigned int)_uptime());
 }
 
 static char dispinfo[128] __attribute__((used));
 
 void dispinfo_read(void *buf, off_t offset, size_t len) {
-  strncpy(buf, dispinfo + offset, len);
+  memcpy(buf, dispinfo + offset, len);
 }
 
 void fb_write(const void *buf, off_t offset, size_t len) {
-  assert(offset % 4 == 0 && len % 4 == 0);
-  // int index, screen_x1, screen_y1, screen_y2;
-  // int width=0,height=0;
-  // getScreen(&width, &height);
-  // index=offset/4;
-  // screen_y1=index/width;
-  // screen_x1=index%width;
+  assert(offset % sizeof(uint32_t) == 0);
+  assert(len % sizeof(uint32_t) == 0);
 
-  // index=(offset+len)/4;
-  // screen_y2=index/width;
+  const uint32_t *pixels = (const uint32_t *)buf;
+  size_t pixel_offset = offset / sizeof(uint32_t);
+  size_t pixel_len = len / sizeof(uint32_t);
 
-  // assert(screen_y2>=screen_y1);
+  while (pixel_len > 0) {
+    int x = pixel_offset % _screen.width;
+    int y = pixel_offset / _screen.width;
+    int w = _screen.width - x;
+    if ((size_t)w > pixel_len) {
+      w = pixel_len;
+    }
 
-  // if(screen_y2==screen_y1)
-  // {
-  //   _draw_rect(buf,screen_x1,screen_y1,len/4,1);
-  //   return ;
-  // }
-
-  // int tempw=width-screen_x1;
-  // if(screen_y2-screen_y1==1)
-  // {
-  //   _draw_rect(buf,screen_x1,screen_y1,tempw,1);
-  //   _draw_rect(buf+tempw * 4 ,0,screen_y2,len/4-tempw,1);
-  //   return ;
-  // }
-  // _draw_rect(buf, screen_x1, screen_y1, tempw, 1);
-  // int tempy = screen_y2 - screen_y1 - 1;
-  // _draw_rect(buf + tempw * 4, 0, screen_y1 + 1, width, tempy);
-  // _draw_rect(buf+tempw*4+tempy*width*4,0,screen_y2, len / 4 - tempw - tempy * width, 1);
-  assert(offset % 4 == 0 && len % 4 ==0);
-  int index, screen_x, screen_y;
-  int w = 0; 
-  int h = 0;
-  getScreen(&w, &h);
-  for(int i = 0; i < len / 4; i++) {
-    index = offset / 4 + i;
-    screen_y = index / w;
-    screen_x = index % w;
-    _draw_rect(buf + i *4, screen_x, screen_y, 1, 1);
+    _draw_rect(pixels, x, y, w, 1);
+    pixels += w;
+    pixel_offset += w;
+    pixel_len -= w;
   }
 
+  _draw_sync();
 }
 
 void init_device() {
   _ioe_init();
 
-  // TODO: print the string to array `dispinfo` with the format
-  // described in the Navy-apps convention
-  int width = 0, height = 0;
-  getScreen(&width, &height);
-  sprintf(dispinfo, "WIDTH:%d\nHEIGHT:%d\n", width,height);
-}
-// Dummy implementation for getScreen (required by fb_write and init_device)
-void getScreen(int *width, int *height) {
-    *width = 640;
-    *height = 480;
+  int len = snprintf(dispinfo, sizeof(dispinfo), "WIDTH:%d\nHEIGHT:%d\n",
+      _screen.width, _screen.height);
+  assert(len >= 0 && len < sizeof(dispinfo));
 }
