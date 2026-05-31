@@ -16,7 +16,7 @@ unsigned long _uptime() {
   return inl(RTC_PORT) - boot_time;
 }
 
-uint32_t* const fb = (uint32_t *)0x40000;
+extern uint32_t* const fb;  // 声明外部变量;
 
 _Screen _screen = {
   .width  = 400,
