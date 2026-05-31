@@ -15,7 +15,7 @@ static SDL_Renderer *renderer;
 static SDL_Texture *texture;
 
 static uint32_t (*vmem) [SCREEN_W];
-uint32_t* const fb = (uint32_t*)VMEM; // VMEM为0x40000
+
 void vga_vmem_io_handler(paddr_t addr, int len, bool is_write) {
 }
 
