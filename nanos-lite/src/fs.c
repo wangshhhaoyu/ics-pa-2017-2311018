@@ -1,4 +1,5 @@
 #include "fs.h"
+#include <sys/types.h>   // for off_t
 
 typedef struct {
   char *name;
@@ -125,6 +126,30 @@ off_t fs_lseek(int fd, off_t offset, int whence)
 {
   assert(fd >= 0 && fd < NR_FILES);
 
+  // 对设备文件，允许任意偏移，不进行边界检查
+  if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR ||
+      fd == FD_FB || fd == FD_EVENTS || fd == FD_DISPINFO) {
+    off_t new_offset = 0;   // 初始化避免警告
+    switch (whence) {
+      case SEEK_SET:
+        new_offset = offset;
+        break;
+      case SEEK_CUR:
+        new_offset = file_table[fd].open_offset + offset;
+        break;
+      case SEEK_END:
+        new_offset = file_table[fd].size + offset;
+        break;
+      default:
+        assert(0);
+        new_offset = 0;   // 不会执行，但消除警告
+    }
+    if (new_offset < 0) new_offset = 0;
+    file_table[fd].open_offset = new_offset;
+    return new_offset;
+  }
+
+  // 普通文件的原有逻辑
   off_t base = 0;
   switch (whence) {
     case SEEK_SET:
@@ -156,4 +181,5 @@ int fs_close(int fd)
 
 void init_fs() {
   file_table[FD_FB].size = _screen.width * _screen.height * sizeof(uint32_t);
+  file_table[FD_EVENTS].size = 4096;   // 为 /dev/events 设置一个合理大小
 }
