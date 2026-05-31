@@ -1,6 +1,7 @@
 #ifndef __WATCHPOINT_H__
 #define __WATCHPOINT_H__
-
+#define NR_WP 32
+#define WP_EXPR_LEN 128
 #include "common.h"
 
 typedef struct watchpoint {
@@ -8,15 +9,17 @@ typedef struct watchpoint {
   struct watchpoint *next;
 
   /* TODO: Add more members if necessary */
-  int old; //旧的值
-  char e[32]; //表达式
-  int hitNum; //记录触发次数
+  char Address[WP_EXPR_LEN];
+  int last_value;
 
 } WP;
 
-bool new_wp(char *arg);
-bool free_wp(int num);
-void print_wp();
-bool watch_wp();
+void init_wp_pool(void);
+
+WP* new_wp();
+void free_wp(WP* wp);
+bool check_wp(void);
+void printWP(void);
+void delPoint(int N);
 
 #endif

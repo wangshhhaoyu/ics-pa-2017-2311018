@@ -31,6 +31,8 @@ void diff_test_skip_nemu() { is_skip_nemu = true; }
     regs.esi = cpu.esi; \
     regs.edi = cpu.edi; \
     regs.eip = cpu.eip; \
+    regs.eflags = cpu.eflags; \
+    regs.cs = cpu.cs; \
   } while (0)
 
 static uint8_t mbr[] = {
@@ -85,7 +87,12 @@ void init_difftest(void) {
     }
 
     close(STDIN_FILENO);
-    execlp("qemu-system-i386", "qemu-system-i386", "-S", "-s", "-nographic", NULL);
+    execlp("qemu-system-i386", "qemu-system-i386",
+        "-S", "-s",
+        "-display", "none",
+        "-serial", "none",
+        "-monitor", "none",
+        NULL);
     perror("exec");
     panic("exec error");
   }
@@ -146,46 +153,46 @@ void difftest_step(uint32_t eip) {
 
   gdb_si();
   gdb_getregs(&r);
-  // TODO: Check the registers state with QEMU.
-  // Set `diff` as `true` if they are not the same.
-  // TODO();
-  if(r.eax!=cpu.eax) {
-    printf("expect: %d true: %d at: %x\n", r.eax, cpu.eax, cpu.eip);
-    diff=true;
+
+  if (r.eax != cpu.eax) {
+    diff = true;
+    printf("eax different! qemu=0x%x nemu=0x%x\n", r.eax, cpu.eax);
   }
-  if(r.ecx!=cpu.ecx) {
-    printf("expect: %d true: %d at: %x \n", r.ecx, cpu.ecx, cpu.eip);
-    diff=true;
+  if (r.ecx != cpu.ecx) {
+    diff = true;
+    printf("ecx different! qemu=0x%x nemu=0x%x\n", r.ecx, cpu.ecx);
   }
-  if(r.edx!=cpu.edx) {
-    printf("expect: %d true: %d at: %x\n", r.edx, cpu.edx, cpu.eip);
-    diff=true;
+  if (r.edx != cpu.edx) {
+    diff = true;
+    printf("edx different! qemu=0x%x nemu=0x%x\n", r.edx, cpu.edx);
   }
-  if(r.ebx!=cpu.ebx) {
-    printf("expect: %d true: %d at: %x\n", r.ebx, cpu.ebx, cpu.eip);
-    diff=true;
+  if (r.ebx != cpu.ebx) {
+    diff = true;
+    printf("ebx different! qemu=0x%x nemu=0x%x\n", r.ebx, cpu.ebx);
   }
-  if(r.esp!=cpu.esp) {
-    printf("expect: %d true: %d at: %x\n", r.esp, cpu.esp, cpu.eip);
-	  diff=true;
+  if (r.esp != cpu.esp) {
+    diff = true;
+    printf("esp different! qemu=0x%x nemu=0x%x\n", r.esp, cpu.esp);
   }
-  if(r.ebp!=cpu.ebp) {
-    printf("expect: %d true: %d at: %x\n", r.ebp, cpu.ebp, cpu.eip);
-	  diff=true;
+  if (r.ebp != cpu.ebp) {
+    diff = true;
+    printf("ebp different! qemu=0x%x nemu=0x%x\n", r.ebp, cpu.ebp);
   }
-  if(r.esi!=cpu.esi) {
-    printf("expect: %d true: %d at: %x\n", r.esi, cpu.esi, cpu.eip);
-	  diff=true;
+  if (r.esi != cpu.esi) {
+    diff = true;
+    printf("esi different! qemu=0x%x nemu=0x%x\n", r.esi, cpu.esi);
   }
-  if(r.edi!=cpu.edi) {
-    printf("expect: %d true: %d at: %x\n", r.edi, cpu.edi, cpu.eip);
-	  diff=true;
+  if (r.edi != cpu.edi) {
+    diff = true;
+    printf("edi different! qemu=0x%x nemu=0x%x\n", r.edi, cpu.edi);
   }
-  if(r.eip!=cpu.eip) {
-	  diff=true;
-	  Log("different:qemu.eip=0x%x,nemu.eip=0x%x",r.eip,cpu.eip);
+  if (r.eip != cpu.eip) {
+    diff = true;
+    printf("eip different! qemu=0x%x nemu=0x%x\n", r.eip, cpu.eip);
   }
+
   if (diff) {
+    printf("difftest mismatch at eip=0x%x\n", eip);
     nemu_state = NEMU_END;
   }
 }

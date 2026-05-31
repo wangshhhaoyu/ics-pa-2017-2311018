@@ -1,9 +1,10 @@
-#include "monitor/expr.h"
 #include "monitor/monitor.h"
+#include "monitor/expr.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -36,123 +37,89 @@ static int cmd_q(char *args) {
   return -1;
 }
 
-static int cmd_help(char *args);
-
 static int cmd_si(char *args) {
-  uint64_t N = 0;
-  if(args == NULL) {
-    N = 1;
-  }
-  else {
-    int temp = sscanf(args, "%lu", &N);
-    if(temp <= 0) {
-      printf("args error in cmd_si\n");
-      return 0;
-    }
-  }
-  cpu_exec(N);
+  int num = 0;
+  if(args == NULL)num = 1; 
+  else num = atoi(args);
+  cpu_exec(num);
   return 0;
 }
 
 static int cmd_info(char *args) {
-  char s;
-  if(args == NULL) {
-    printf("args error in cmd_info (miss args)\n");
-    return 0;
+  // CPU_state cpu;
+  if(args[0] == 'r')
+  {
+    printf("EAX  0x%08x  %u\n", (uint32_t)cpu.eax, (uint32_t)cpu.eax);
+    printf("ECX  0x%08x  %u\n", (uint32_t)cpu.ecx, (uint32_t)cpu.ecx);
+    printf("EDX  0x%08x  %u\n", (uint32_t)cpu.edx, (uint32_t)cpu.edx);
+    printf("EBX  0x%08x  %u\n", (uint32_t)cpu.ebx, (uint32_t)cpu.ebx);
+    printf("ESP  0x%08x  %u\n", (uint32_t)cpu.esp, (uint32_t)cpu.esp);
+    printf("EBP  0x%08x  %u\n", (uint32_t)cpu.ebp, (uint32_t)cpu.ebp);
+    printf("ESI  0x%08x  %u\n", (uint32_t)cpu.esi, (uint32_t)cpu.esi);
+    printf("EDI  0x%08x  %u\n", (uint32_t)cpu.edi, (uint32_t)cpu.edi);
+    printf("AL   0x%02x  %u\n", (uint8_t)reg_b(R_AL), (uint8_t)reg_b(R_AL));
+    printf("AH   0x%02x  %u\n", (uint8_t)reg_b(R_AH), (uint8_t)reg_b(R_AH));
+    printf("BL   0x%02x  %u\n", (uint8_t)reg_b(R_BL), (uint8_t)reg_b(R_BL));
+    printf("BH   0x%02x  %u\n", (uint8_t)reg_b(R_BH), (uint8_t)reg_b(R_BH));
+    printf("CL   0x%02x  %u\n", (uint8_t)reg_b(R_CL), (uint8_t)reg_b(R_CL));
+    printf("CH   0x%02x  %u\n", (uint8_t)reg_b(R_CH), (uint8_t)reg_b(R_CH));
+    printf("DL   0x%02x  %u\n", (uint8_t)reg_b(R_DL), (uint8_t)reg_b(R_DL));
+    printf("DH   0x%02x  %u\n", (uint8_t)reg_b(R_DH), (uint8_t)reg_b(R_DH));
+    printf("AX   0x%04x  %u\n", (uint16_t)reg_w(R_AX), (uint16_t)reg_w(R_AX));
+    printf("CX   0x%04x  %u\n", (uint16_t)reg_w(R_CX), (uint16_t)reg_w(R_CX));
+    printf("DX   0x%04x  %u\n", (uint16_t)reg_w(R_DX), (uint16_t)reg_w(R_DX));
+    printf("BX   0x%04x  %u\n", (uint16_t)reg_w(R_BX), (uint16_t)reg_w(R_BX));
+    printf("SP   0x%04x  %u\n", (uint16_t)reg_w(R_SP), (uint16_t)reg_w(R_SP));
+    printf("BP   0x%04x  %u\n", (uint16_t)reg_w(R_BP), (uint16_t)reg_w(R_BP));
+    printf("SI   0x%04x  %u\n", (uint16_t)reg_w(R_SI), (uint16_t)reg_w(R_SI));
+    printf("DI   0x%04x  %u\n", (uint16_t)reg_w(R_DI), (uint16_t)reg_w(R_DI));
   }
-  int temp = sscanf(args, "%c", &s);
-  if(temp <= 0) {
-    //解析失败
-    printf("args error in cmd_info\n");
-    return 0;
+  else if(args[0] == 'w')
+  {
+    printWP();
   }
-  if(s == 'w') {
-    //打印监视点信息
-    print_wp();;
-    return 0;
-  }
-  if(s == 'r') {
-    //打印寄存器
-    //32bit
-    for(int i = 0; i < 8; i++) {
-      printf("%s  0x%x\n", regsl[i], reg_l(i));
-    }
-    printf("eip  0x%x\n", cpu.eip);
-    //16bit
-    for(int i = 0; i < 8; i++) {
-      printf("%s  0x%x\n", regsw[i], reg_w(i));
-    }
-    //8bit
-    for(int i = 0; i < 8; i++)
-    {
-      printf("%s  0x%x\n", regsb[i], reg_b(i));
-    }
-    return 0;
-  }
-  //如果产生错误
-  printf("args error in cmd_info\n");
   return 0;
 }
-
 static int cmd_x(char *args) {
-  int nLen = 0;
-  vaddr_t addr;
-  int temp = sscanf(args, "%d 0x%x", &nLen, &addr);
-  if(temp <= 0) {
-    //解析失败
-    printf("args error in cmd_si\n");
-    return 0;
+  char *n = strtok(args," ");
+  int num = atoi(n);
+  char* Expr = n + strlen(n) + 1;
+  bool success = true;
+  long base = expr(Expr,&success);
+  printf("0x%lx: ",base);
+  for(int i = base;i < base + num * 4;i += 4)
+  {
+    uint32_t data = vaddr_read(i,4);
+    printf("0x%08x ",(uint32_t)data);
   }
-  printf("Memory:");
-  for(int i = 0; i < nLen; i++) {
-    if(i % 4 == 0) {
-      printf("\n0x%x:  0x%02x", addr + i, vaddr_read(addr + i, 1));
-    }  
-    else {
-      printf("  0x%02x", vaddr_read(addr + i, 1));
-    }
-  }
-  printf("\n");
+  puts("");
   return 0;
 }
 
-static int cmd_p(char *args) {
-  //表达式求值
-  bool is_success;
-  int temp = expr(args, &is_success);
-  if(is_success == false) {
-    printf("error in expr()\n");
-  }
-  else {
-    printf("the value of expr is:%d\n", temp);
-  }
+static int cmd_p(char *args)
+{
+  bool scucess = true;
+  printf("the result is %d\n",expr(args,&scucess));
+  return scucess;
+}
+
+static int cmd_w(char *args)
+{
+  WP* Insert_wp = new_wp();
+  strncpy(Insert_wp->Address, args, WP_EXPR_LEN - 1);
+  Insert_wp->Address[WP_EXPR_LEN - 1] = '\0';
+  bool success = true;
+  Insert_wp->last_value = expr(Insert_wp->Address,&success);
+  return 0;
+}
+static int cmd_d(char *args)
+{
+  int N = strtol(args,NULL,10);
+  delPoint(N);
   return 0;
 }
 
-static int cmd_w(char *args) {
-  new_wp(args);
-  return 0;
-}
-
-static int cmd_d(char* args) {
-  //删除监视点,args为监视点编号
-  int num = 0;
-  int nRet = sscanf(args, "%d", &num);
-  if(nRet <= 0) {
-    //解析失败
-    printf("args error in cmd_si\n");
-    return 0;
-  }
-  int r = free_wp(num);
-  if(r == false) {
-    printf("error: no watchpoint %d\n", num);
-  }
-  else {
-    printf("Success delete watchpoint %d\n", num);
-  }
-  return 0;
-}
-
+static int cmd_help(char *args);
 
 static struct {
   char *name;
@@ -162,15 +129,15 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si","Excute Single inst",cmd_si},
+  {"info","Print infomation",cmd_info},
+  {"x","Print Memory location",cmd_x},
+  {"p","excute the result of expr",cmd_p},
+  {"w","When the expr's value change,Stop",cmd_w},
+  {"d","Delte the WP",cmd_d},
 
   /* TODO: Add more commands */
 
-  { "si", "args:[N]; exectue [N] instructions step by step", cmd_si}, //让程序单步执行 N 条指令后暂停执行, 当N没有给出时, 缺省为1
-  { "info", "args:r/w;print information about register or watch point ", cmd_info}, //打印寄存器状态
-  { "x", "x [N] [EXPR];sacn the memory", cmd_x }, //内存扫描
-  { "p", "expr", cmd_p}, //表达式
-  { "w", "set the watchpoint", cmd_w}, //添加监视点
-  { "d", "delete the watchpoint", cmd_d} //删除监视点
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
