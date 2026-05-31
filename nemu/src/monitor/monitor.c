@@ -82,11 +82,6 @@ static inline void load_img() {
 static inline void restart() {
   /* Set the initial instruction pointer. */
   cpu.eip = ENTRY_START;
-  cpu.cs = 8;
-  cpu.cr0 = 0x60000011;  
-  cpu.cr2 = 0;
-  cpu.cr3 = 0;
-  cpu.cr4 = 0;
   unsigned int origin = 2;
   memcpy(&cpu.eflags, &origin, sizeof(cpu.eflags));
 

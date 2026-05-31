@@ -14,17 +14,46 @@ enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
  * For more details about the register encoding scheme, see i386 manual.
  */
 
+typedef union
+{
+  uint32_t _32;
+  uint16_t _16;
+  uint8_t _8[2];
+} Reg;
+typedef struct{
+  uint16_t limit;
+  uint32_t base;
+} IDTR;
+typedef union
+{
+  uint32_t val;
+  struct {
+    uint32_t CF : 1;
+    uint32_t    : 5;
+    uint32_t ZF : 1;
+    uint32_t SF : 1;
+    uint32_t    : 1;
+    uint32_t IF : 1;
+    uint32_t    : 1;
+    uint32_t OF : 1;
+    uint32_t    : 20;
+  };
+} EFLAGS;
+
 typedef struct {
-  union{
-    /* data */
-    union {
+  union
+  {
+    union reg
+    {
+      /* data */
       uint32_t _32;
       uint16_t _16;
       uint8_t _8[2];
     } gpr[8];
-    struct 
+    struct
     {
-      rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+      
+    rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
     };
   };
   /* Do NOT change the order of the GPRs' definitions. */
@@ -33,36 +62,13 @@ typedef struct {
    * in PA2 able to directly access these registers.
    */
   vaddr_t eip;
-
-  struct bs {
-    unsigned int CF:1;
-
-    unsigned int one:1;
-    unsigned int :4;
-    unsigned int ZF:1;
-    unsigned int SF:1;
-
-    unsigned int :1;
-    unsigned int IF:1;
-    unsigned int :1;
-    unsigned int OF:1;
-    unsigned int :20;
-  } eflags;
-
-  struct IDTR
+  union
   {
-    /* data */
-    uint32_t base;
-    uint16_t limit; 
-  } idtr;
-  
-  rtlreg_t cs;
-  rtlreg_t es; // 配x64
-  rtlreg_t ds;
-  uint32_t cr0;
-  uint32_t cr2; 
-  uint32_t cr3;  
-  uint32_t cr4;  
+    EFLAGS Eflags;
+    rtlreg_t eflags;
+  };
+  uint16_t cs;
+  IDTR idtr;
 } CPU_state;
 
 extern CPU_state cpu;

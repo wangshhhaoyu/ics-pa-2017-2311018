@@ -28,7 +28,7 @@ static inline make_DopHelper(I) {
  */
 /* sign immediate */
 static inline make_DopHelper(SI) {
-  assert(op->width == 1 || op->width == 4);
+  assert(op->width == 1 || op->width == 2 || op->width == 4);
 
   op->type = OP_TYPE_IMM;
 
@@ -38,11 +38,10 @@ static inline make_DopHelper(SI) {
    *
    op->simm = ???
    */
-  //TODO();
-  op -> simm = instr_fetch(eip, op -> width);
-  if(op -> width == 1) {
-    op -> simm = (int8_t)op -> simm;
-  }
+  if (op->width == 1) op->simm = (int8_t)instr_fetch(eip, op->width);
+  else if (op->width == 2) op->simm = (int16_t)instr_fetch(eip, op->width);
+  else op->simm = (int32_t)instr_fetch(eip, op->width);
+  // TODO();
 
   rtl_li(&op->val, op->simm);
 
@@ -128,6 +127,16 @@ make_DHelper(E2G) {
   decode_op_rm(eip, id_src, true, id_dest, true);
 }
 
+make_DHelper(Eb2G) {
+  id_src->width = 1;
+  decode_op_rm(eip, id_src, true, id_dest, true);
+}
+
+make_DHelper(Ew2G) {
+  id_src->width = 2;
+  decode_op_rm(eip, id_src, true, id_dest, true);
+}
+
 make_DHelper(mov_E2G) {
   decode_op_rm(eip, id_src, true, id_dest, false);
 }
@@ -178,6 +187,11 @@ make_DHelper(mov_I2r) {
   decode_op_I(eip, id_src, true);
 }
 
+make_DHelper(a2r) {
+  decode_op_r(eip, id_dest, true);
+  decode_op_a(eip, id_src, true);
+}
+
 /* used by unary operations */
 make_DHelper(I) {
   decode_op_I(eip, id_dest, true);
@@ -189,6 +203,13 @@ make_DHelper(r) {
 
 make_DHelper(E) {
   decode_op_rm(eip, id_dest, true, NULL, false);
+}
+
+make_DHelper(gp3_E) {
+  decode_op_rm(eip, id_dest, true, NULL, false);
+  if (decoding.ext_opcode == 0) {
+    decode_test_I(eip);
+  }
 }
 
 make_DHelper(gp7_E) {
@@ -306,10 +327,6 @@ make_DHelper(out_a2dx) {
 #ifdef DEBUG
   sprintf(id_dest->str, "(%%dx)");
 #endif
-}
-
-make_DHelper(lidt_a) {
-  decode_op_a(eip, id_dest, true);
 }
 
 void operand_write(Operand *op, rtlreg_t* src) {

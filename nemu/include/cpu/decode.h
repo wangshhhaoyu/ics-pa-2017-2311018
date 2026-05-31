@@ -31,7 +31,7 @@ typedef struct {
   vaddr_t jmp_eip;
   Operand src, dest, src2;
 #ifdef DEBUG
-  char assembly[256];
+  char assembly[80];
   char asm_buf[128];
   char *p;
 #endif
@@ -77,6 +77,7 @@ typedef void (*DHelper) (vaddr_t *);
 make_DHelper(I2E);
 make_DHelper(I2a);
 make_DHelper(I2r);
+make_DHelper(a2r);
 make_DHelper(SI2E);
 make_DHelper(SI_E2G);
 make_DHelper(I_E2G);
@@ -84,11 +85,14 @@ make_DHelper(I_G2E);
 make_DHelper(I);
 make_DHelper(r);
 make_DHelper(E);
+make_DHelper(gp3_E);
 make_DHelper(gp7_E);
 make_DHelper(test_I);
 make_DHelper(SI);
 make_DHelper(G2E);
 make_DHelper(E2G);
+make_DHelper(Eb2G);
+make_DHelper(Ew2G);
 
 make_DHelper(mov_I2r);
 make_DHelper(mov_I2E);
@@ -111,6 +115,5 @@ make_DHelper(in_I2a);
 make_DHelper(in_dx2a);
 make_DHelper(out_a2I);
 make_DHelper(out_a2dx);
-make_DHelper(lidt_a);
 
 #endif
