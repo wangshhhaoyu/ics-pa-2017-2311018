@@ -1,44 +1,62 @@
 #!/bin/bash
 
-log=""
+# usage: addenv env_name path
+function addenv() {
+  sed -i -e "/^export $1=.*/d" ~/.bashrc
+  echo -e "\nexport $1=`readlink -e $2`" >> ~/.bashrc
+  echo "By default this script will add environment variables into ~/.bashrc."
+  echo "After that, please run 'source ~/.bashrc' to let these variables take effect."
+  echo "If you use shell other than bash, please add these environment variables manually."
+}
 
+# usage: init repo branch directory trace [env]
+# trace = true|false
 function init() {
-  if [ -d $1 ]; then
-    echo "$1 is already initialized, exiting..."
+  if [ -d $3 ]; then
+    echo "$3 is already initialized, skipping..."
     return
   fi
 
-  while [ ! -d $1 ]; do
-    git clone -b ics2017 https://github.com/NJU-ProjectN/$1.git
+  while [ ! -d $3 ]; do
+    git clone -b $2 git@github.com:$1.git $3
   done
-  log="$log$1 `cd $1 && git log --oneline --no-abbrev-commit -n1`"$'\n'
-  rm -rf $1/.git
+  log="$1 `cd $3 && git log --oneline --no-abbrev-commit -n1`"$'\n'
 
-  if [ $2 ] ; then
-    sed -i -e "/^export $2=.*/d" ~/.bashrc
-    echo "export $2=`readlink -e $1`" >> ~/.bashrc
+  if [ $4 == "true" ] ; then
+    rm -rf $3/.git
+    git add -A $3
+    git commit -am "$1 $2 initialized"$'\n\n'"$log"
+  else
+    sed -i -e "/^\/$3/d" .gitignore
+    echo "/$3" >> .gitignore
+    git add -A .gitignore
+    git commit --no-verify --allow-empty -am "$1 $2 initialized without tracing"$'\n\n'"$log"
+  fi
+
+  if [ $5 ] ; then
+    addenv $5 $3
   fi
 }
 
-read -r -p "Are you sure to initialize everything? [y/n] " input
-case $input in
-  [yY])
-    init nemu NEMU_HOME
-    init nexus-am AM_HOME
-    init nanos-lite
-    init navy-apps NAVY_HOME
-    source ~/.bashrc
-
-    git add -A
-    git commit -am "ics2017 initialized"$'\n\n'"$log"
-
-    echo "Initialization finishes!"
+case $1 in
+  nemu)
+    init NJU-ProjectN/nemu ics2024 nemu true NEMU_HOME
     ;;
-
-  [nN])
+  abstract-machine)
+    init NJU-ProjectN/abstract-machine ics2024 abstract-machine true AM_HOME
+    init NJU-ProjectN/fceux-am ics2021 fceux-am false
     ;;
-
+  am-kernels)
+    init NJU-ProjectN/am-kernels ics2021 am-kernels false
+    ;;
+  nanos-lite)
+    init NJU-ProjectN/nanos-lite ics2021 nanos-lite true
+    ;;
+  navy-apps)
+    init NJU-ProjectN/navy-apps ics2024 navy-apps true NAVY_HOME
+    ;;
   *)
     echo "Invalid input..."
+    exit
     ;;
 esac
